@@ -74,21 +74,22 @@ brew install drift
 
 ## 🪟 WinGet Setup (Windows)
 
-### Prepare Windows Executable
+### Prepare Windows Executable (Automated)
+
+Windows executables are built automatically via GitHub Actions when you create a release tag.
+
+**Process:**
+1. Create git tag: `git tag v1.0.0 && git push --tags`
+2. Go to https://github.com/a-elhaag/driftshell/actions
+3. Watch the "Build Windows Executable" workflow run
+4. When complete, `drift.exe` is uploaded to the release automatically
+5. Update WinGet manifest with SHA256:
 
 ```bash
-# Install PyInstaller
-pip install pyinstaller
-
-# Build standalone executable
-pyinstaller --onefile --console driftshell/main.py -n drift
-
-# You'll get: dist/drift.exe
-
-# Calculate SHA256
-sha256sum dist/drift.exe  # or on Windows: certUtil -hashfile dist\drift.exe SHA256
-# Output: def456abc123...
+./scripts/update-winget-sha256.sh 1.0.0
 ```
+
+This downloads the .exe from the release, calculates SHA256, and updates the manifest automatically.
 
 ### Submit to WinGet
 
