@@ -1,0 +1,11 @@
+DEFAULT_MEMORY_WINDOW: int = 10
+DEFAULT_EXEC_TIMEOUT: int = 30
+DEFAULT_DAILY_LIMIT: int = 20  # Free tier default; overridden by license
+DEFAULT_EXEC_LIMIT: int = 3  # Free tier default; overridden by license
+DEFAULT_SNAPSHOT_LIMIT: int = 1  # Free tier default; overridden by license
+DEFAULT_MODEL_OVERRIDE: str | None = None
+DEFAULT_SKIP_SCORING: bool = False
+DEFAULT_VRAM_OVERRIDE: float | None = None
+DEFAULT_PLAN: str = "free"  # "free", "pro", or "enterprise" (read-only, set by license)
+DEFAULT_D_COMMAND_OVERRIDE: str | None = None  # e.g., "ls", "git status"
+DEFAULT_LICENSE_KEY: str | None = None  # HMAC-signed license key (immutable after set)
