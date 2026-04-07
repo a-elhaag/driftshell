@@ -5,6 +5,14 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v1.0.0)'
+        required: false
+        default: 'v1.0.0'
+
+permissions:
+  contents: write
 
 jobs:
   build-windows:
@@ -32,11 +40,12 @@ jobs:
         run: |
           $file = "dist/drift.exe"
           $hash = (Get-FileHash -Path $file -Algorithm SHA256).Hash
-          echo "SHA256=$hash" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "SHA256=$hash" >> $env:GITHUB_ENV
+          echo "SHA256 of drift.exe: $hash"
 
       - name: Upload to release
         uses: softprops/action-gh-release@v1
         with:
           files: dist/drift.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ github.ref_name || inputs.tag }}
+          fail_on_unmatched_files: true
