@@ -86,19 +86,19 @@ def setup() -> None:
     console.print("  [cyan]1. Free[/cyan] - Basic safety limits")
     console.print("     • 50 commands/day")
     console.print("     • Standard risk scoring")
-    console.print("  [dim cyan]2. Premium[/dim cyan] [drift.amber](Coming Soon)[/drift.amber] - Advanced safety & customization")
+    console.print("  [dim cyan]2. Pro[/dim cyan] [drift.amber](Coming Soon)[/drift.amber] - Advanced safety & customization")
     console.print("     [dim]• Unlimited commands[/dim]")
     console.print("     [dim]• Custom safety settings[/dim]")
     console.print("     [dim]• Risk threshold tuning[/dim]")
     console.print()
     
     plan_choice = console.input(
-        "Select plan (1 - only Free available now, default: 1): "
+        "Select plan (1 - only Free available now, Pro coming soon, default: 1): "
     ).strip()
     
     is_premium = False
     if plan_choice == "2":
-        print_warning("Premium plan is coming soon! Using Free plan for now.")
+        print_warning("Pro plan is coming soon! Using Free plan for now.")
         is_premium = False
         set_config_value("plan", "free")
         set_config_value("daily_limit", 50)
@@ -122,7 +122,7 @@ def setup() -> None:
 
     # Step 4: Safety Settings (Premium only)
     if is_premium:
-        console.print("[bold]Step 4: Safety Settings[/bold drift.blue] [drift.amber](Premium)[/drift.amber]")
+        console.print("[bold]Step 4: Safety Settings[/bold drift.blue] [drift.amber](Pro)[/drift.amber]")
         
         daily_limit = console.input(
             f"Daily command limit (default: {cfg.daily_limit}): "
@@ -147,7 +147,7 @@ def setup() -> None:
         console.print()
 
         # Step 5: Features (Premium only)
-        console.print("[bold]Step 5: Feature Configuration[/bold drift.blue] [drift.amber](Premium)[/drift.amber]")
+        console.print("[bold]Step 5: Feature Configuration[/bold drift.blue] [drift.amber](Pro)[/drift.amber]")
     else:
         # Step 4: Features (Free tier)
         console.print("[bold]Step 4: Feature Configuration[/bold]")
@@ -166,7 +166,7 @@ def setup() -> None:
 
     # Completion
     plan_text = "[drift.green]Free[/drift.green]"
-    premium_note = "\n\n[dim drift.amber]💡 Premium plan coming soon![/dim drift.amber]\n[dim]Try: [cyan]drift settings upgrade[/cyan] to join the waitlist[/dim]"
+    premium_note = "\n\n[dim drift.amber]💡 Pro plan coming soon![/dim drift.amber]\n[dim]Try: [cyan]drift settings upgrade[/cyan] to join the waitlist[/dim]"
     console.print(
         Panel.fit(
             f"[bold green]✓ Setup Complete![/bold green]\n\n"

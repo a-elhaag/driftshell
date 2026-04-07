@@ -34,8 +34,8 @@ def view_settings() -> None:
     table.add_column("Setting", style="bold cyan")
     table.add_column("Value")
 
-    # Plan (show free, premium coming soon)
-    plan_display = f"{cfg.plan} [dim drift.amber](coming soon: upgrade)[/dim drift.amber]" if cfg.plan == "free" else cfg.plan
+    # Plan (show free, pro coming soon)
+    plan_display = f"{cfg.plan} [dim drift.amber](upgrade to Pro)[/dim drift.amber]" if cfg.plan == "free" else cfg.plan
     table.add_row("Plan", plan_display)
     
     table.add_row("Current Model", profile.selected_model)
@@ -170,28 +170,28 @@ def get_setting(
 
 @app.command("upgrade")
 def upgrade_plan() -> None:
-    """Upgrade to Premium plan.
-    
-    Premium features:
+    """Upgrade to Pro plan.
+
+    Pro features:
     - Unlimited daily commands
     - Custom safety settings
     - Advanced risk management
     - Priority support
     """
     from rich.panel import Panel
-    
+
     console.print(
         Panel.fit(
-            "[bold drift.amber]Premium Plan[/bold drift.amber]\n\n"
+            "[bold drift.amber]Pro Plan[/bold drift.amber]\n\n"
             "[bold]Coming Soon![/bold]\n\n"
-            "We're working on bringing Premium features to Drift.\n"
+            "We're working on bringing Pro features to Drift.\n"
             "Join our waitlist to be notified when it launches.\n\n"
             "Features include:\n"
             "  • Unlimited daily commands\n"
             "  • Custom safety settings\n"
             "  • Advanced risk management\n"
             "  • Priority support\n\n"
-            "Visit [cyan]https://driftshell.dev/premium[/cyan] to learn more",
+            "Visit [cyan]https://driftshell.dev/pro[/cyan] to learn more",
             border_style="amber",
         )
     )

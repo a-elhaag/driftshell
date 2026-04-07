@@ -32,8 +32,8 @@ def status() -> None:
     table.add_column("Key", style="bold cyan")
     table.add_column("Value")
 
-    # Plan (show free, premium coming soon)
-    plan_display = f"{cfg.plan} [dim drift.amber](coming soon)[/dim drift.amber]" if cfg.plan == "free" else cfg.plan
+    # Plan (show free, pro coming soon)
+    plan_display = f"{cfg.plan} [dim drift.amber](upgrade to Pro)[/dim drift.amber]" if cfg.plan == "free" else cfg.plan
     table.add_row("Plan", plan_display)
     
     table.add_row("Ollama", ollama_status)
