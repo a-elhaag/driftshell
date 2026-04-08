@@ -1,4 +1,4 @@
-class Drift < Formula
+class Driftshell < Formula
   desc "Local CLI: plain English → shell commands via Ollama"
   homepage "https://github.com/a-elhaag/driftshell"
   url "https://github.com/a-elhaag/driftshell/archive/refs/tags/v1.0.0.tar.gz"
