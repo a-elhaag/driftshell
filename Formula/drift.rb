@@ -7,16 +7,20 @@ class Drift < Formula
 
   depends_on "python@3.11"
 
+  # pydantic-core ships prebuilt .so wheels whose load-command headers have no
+  # room for Homebrew's install_name_tool relinking pass.  Skip it for the venv.
+  skip_clean "libexec"
+
   def install
     # Create virtual environment
     venv = libexec / "venv"
     system Formula["python@3.11"].bin / "python3.11", "-m", "venv", venv
 
-    # Install driftshell
+    # Install driftshell (non-editable so paths are stable)
     system venv / "bin" / "pip", "install", "--upgrade", "pip"
-    system venv / "bin" / "pip", "install", "."
+    system venv / "bin" / "pip", "install", "--no-build-isolation", "."
 
-    # Create wrapper script
+    # Wrapper scripts for both entry points
     (bin / "drift").write_env_script(venv / "bin" / "drift", {})
     (bin / "d").write_env_script(venv / "bin" / "d", {})
   end
