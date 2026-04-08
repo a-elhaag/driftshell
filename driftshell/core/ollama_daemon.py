@@ -29,30 +29,52 @@ def _is_running() -> bool:
 
 def _install() -> None:
     system = platform.system()
-    console.print("[bold cyan]Ollama not found — installing...[/bold cyan]")
+    console.print("[bold cyan]Ollama not found.[/bold cyan]")
 
     if system == "Darwin":
-        # Prefer Homebrew if available
         if shutil.which("brew"):
+            console.print("[dim]Installing via Homebrew (no shell profile changes)...[/dim]")
             subprocess.run(["brew", "install", "ollama"], check=True)
         else:
-            # Official install script
-            subprocess.run(
-                ["sh", "-c", "curl -fsSL https://ollama.com/install.sh | sh"],
-                check=True,
+            # Homebrew not available — refuse the curl|sh path because it
+            # modifies .zshrc/.bashrc without asking.  Ask the user instead.
+            console.print(
+                "\n[yellow]Please install Ollama manually to avoid automatic shell profile changes:[/yellow]\n\n"
+                "  1. Install Homebrew (recommended):\n"
+                "     [cyan]/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install.sh)\"[/cyan]\n"
+                "     then: [cyan]brew install ollama[/cyan]\n\n"
+                "  2. Or download the macOS app from [cyan]https://ollama.com/download[/cyan]\n\n"
+                "Re-run [cyan]drift[/cyan] after Ollama is installed."
             )
+            sys.exit(1)
 
     elif system == "Linux":
-        subprocess.run(
-            ["sh", "-c", "curl -fsSL https://ollama.com/install.sh | sh"],
-            check=True,
-        )
+        # The official install.sh writes to .bashrc / .profile; we don't run it.
+        pkg_cmds = [
+            (["snap", "install", "ollama", "--classic"], shutil.which("snap")),
+            (["apt-get", "install", "-y", "ollama"], shutil.which("apt-get")),
+        ]
+        for cmd, available in pkg_cmds:
+            if available:
+                console.print(f"[dim]Installing via {cmd[0]}...[/dim]")
+                subprocess.run(cmd, check=True)
+                break
+        else:
+            console.print(
+                "\n[yellow]Please install Ollama manually:[/yellow]\n\n"
+                "  [cyan]https://ollama.com/download/linux[/cyan]\n\n"
+                "Re-run [cyan]drift[/cyan] after Ollama is installed."
+            )
+            sys.exit(1)
 
     elif system == "Windows":
         _install_windows()
 
     else:
-        console.print(f"[red]Unsupported platform: {system}. Install Ollama manually from https://ollama.com[/red]")
+        console.print(
+            f"[red]Unsupported platform: {system}. "
+            "Install Ollama from https://ollama.com then re-run drift.[/red]"
+        )
         sys.exit(1)
 
     if not _is_installed():

@@ -4,7 +4,7 @@ from typing import Optional
 
 import typer
 
-from driftshell.cli import settings, history, status, undo, setup, license as license_cli
+from driftshell.cli import settings, history, status, undo, setup, license as license_cli, uninstall
 
 app = typer.Typer(
     name="drift",
@@ -112,3 +112,4 @@ app.add_typer(settings.app, name="settings", help="View and manage settings & mo
 app.add_typer(status.app, name="status", help="Show system status.")
 app.add_typer(setup.app, name="setup", help="Run first-time setup and onboarding.")
 app.add_typer(license_cli.app, name="license", help="License and subscription management.")
+app.add_typer(uninstall.app, name="uninstall", help="Remove all Drift data and show uninstall instructions.")
