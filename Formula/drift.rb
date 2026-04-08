@@ -10,14 +10,15 @@ class Drift < Formula
   def install
     # Create virtual environment
     venv = libexec / "venv"
-    system Formula["python@3.11"].bin / "python3", "-m", "venv", venv
+    system Formula["python@3.11"].bin / "python3.11", "-m", "venv", venv
 
     # Install driftshell
     system venv / "bin" / "pip", "install", "--upgrade", "pip"
-    system venv / "bin" / "pip", "install", "-e", "."
+    system venv / "bin" / "pip", "install", "."
 
     # Create wrapper script
     (bin / "drift").write_env_script(venv / "bin" / "drift", {})
+    (bin / "d").write_env_script(venv / "bin" / "d", {})
   end
 
   test do
