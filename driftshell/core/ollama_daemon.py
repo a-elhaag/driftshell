@@ -6,6 +6,13 @@ import shutil
 import subprocess
 import sys
 import time
+from contextlib import contextmanager
+
+from rich.live import Live
+from rich.spinner import Spinner
+from rich.text import Text
+from rich.panel import Panel
+from rich.columns import Columns
 
 from driftshell.utils.console import console, print_success, print_warning
 
@@ -25,39 +32,71 @@ def _is_running() -> bool:
         return False
 
 
+@contextmanager
+def _first_time_spinner(message: str, note: str = ""):
+    """Show a clean animated panel while a background task runs."""
+    spinner = Spinner("dots", style="drift.blue")
+
+    def _render():
+        body = Text.assemble(
+            (message + "\n", "bold"),
+            (note, "dim") if note else ("", ""),
+        )
+        return Panel(
+            Columns([spinner, body]),
+            title="[bold drift.blue]First-time setup[/bold drift.blue]",
+            border_style="drift.blue",
+            padding=(0, 1),
+        )
+
+    with Live(_render(), console=console, refresh_per_second=12, transient=True) as live:
+        yield live
+        live.update(_render())
+
+
 # ── install ───────────────────────────────────────────────────────────────────
 
 def _install() -> None:
     system = platform.system()
-    console.print("[bold cyan]Ollama not found.[/bold cyan]")
 
     if system == "Darwin":
         if shutil.which("brew"):
-            console.print("[dim]Installing via Homebrew (no shell profile changes)...[/dim]")
-            subprocess.run(["brew", "install", "ollama"], check=True)
+            with _first_time_spinner(
+                "Installing Ollama via Homebrew…",
+                "This only happens once. Grab a coffee ☕",
+            ):
+                subprocess.run(
+                    ["brew", "install", "ollama"],
+                    check=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
         else:
-            # Homebrew not available — refuse the curl|sh path because it
-            # modifies .zshrc/.bashrc without asking.  Ask the user instead.
             console.print(
-                "\n[yellow]Please install Ollama manually to avoid automatic shell profile changes:[/yellow]\n\n"
-                "  1. Install Homebrew (recommended):\n"
-                "     [cyan]/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install.sh)\"[/cyan]\n"
+                "\n[yellow]Please install Ollama manually:[/yellow]\n\n"
+                "  1. Install Homebrew: [cyan]https://brew.sh[/cyan]\n"
                 "     then: [cyan]brew install ollama[/cyan]\n\n"
-                "  2. Or download the macOS app from [cyan]https://ollama.com/download[/cyan]\n\n"
+                "  2. Or download the macOS app: [cyan]https://ollama.com/download[/cyan]\n\n"
                 "Re-run [cyan]drift[/cyan] after Ollama is installed."
             )
             sys.exit(1)
 
     elif system == "Linux":
-        # The official install.sh writes to .bashrc / .profile; we don't run it.
         pkg_cmds = [
             (["snap", "install", "ollama", "--classic"], shutil.which("snap")),
             (["apt-get", "install", "-y", "ollama"], shutil.which("apt-get")),
         ]
         for cmd, available in pkg_cmds:
             if available:
-                console.print(f"[dim]Installing via {cmd[0]}...[/dim]")
-                subprocess.run(cmd, check=True)
+                with _first_time_spinner(
+                    f"Installing Ollama via {cmd[0]}…",
+                    "This only happens once.",
+                ):
+                    subprocess.run(
+                        cmd, check=True,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
                 break
         else:
             console.print(
@@ -68,7 +107,11 @@ def _install() -> None:
             sys.exit(1)
 
     elif system == "Windows":
-        _install_windows()
+        with _first_time_spinner(
+            "Installing Ollama…",
+            "This only happens once.",
+        ):
+            _install_windows()
 
     else:
         console.print(
@@ -121,7 +164,6 @@ def _install_windows() -> None:
 
 def _start_daemon() -> None:
     """Start `ollama serve` as a detached background process."""
-    console.print("[dim]Starting Ollama daemon in background...[/dim]")
 
     if platform.system() == "Windows":
         # On Windows use DETACHED_PROCESS + CREATE_NEW_PROCESS_GROUP so the
@@ -145,16 +187,13 @@ def _start_daemon() -> None:
         )
 
     # Wait up to 10 s for the server to come up
-    for _ in range(20):
-        time.sleep(0.5)
-        if _is_running():
-            print_success("Ollama daemon started.")
-            return
+    with _first_time_spinner("Starting Ollama in background…"):
+        for _ in range(20):
+            time.sleep(0.5)
+            if _is_running():
+                return
 
-    print_warning(
-        "Ollama daemon did not respond in time. "
-        "Run `ollama serve` manually if commands fail."
-    )
+    print_warning("Ollama didn't respond in time. Run `ollama serve` manually if commands fail.")
 
 
 # ── model pull ────────────────────────────────────────────────────────────────
@@ -169,22 +208,34 @@ def _ensure_model(model: str) -> None:
     if model in available_base:
         return
 
-    console.print(f"[bold cyan]Model [yellow]{model}[/yellow] not found — pulling...[/bold cyan]")
-    console.print("[dim](This only happens once)[/dim]")
+    from rich.progress import Progress, BarColumn, DownloadColumn, TimeRemainingColumn, TextColumn
 
-    # Stream pull progress
-    import ollama as _ollama
-    for chunk in _ollama.pull(model, stream=True):
-        status_msg = chunk.get("status", "")
-        completed = chunk.get("completed")
-        total = chunk.get("total")
-        if completed and total:
-            pct = int(completed / total * 100)
-            console.print(f"[dim]{status_msg}: {pct}%[/dim]", end="\r")
-        elif status_msg:
-            console.print(f"[dim]{status_msg}[/dim]", end="\r")
+    progress = Progress(
+        TextColumn("[bold drift.blue]Downloading {task.description}"),
+        BarColumn(bar_width=32, style="drift.blue", complete_style="drift.green"),
+        DownloadColumn(),
+        TimeRemainingColumn(),
+        console=console,
+        transient=False,
+    )
 
-    console.print()  # newline after progress
+    console.print(
+        Panel(
+            f"[bold]Downloading model:[/bold] [cyan]{model}[/cyan]\n\n"
+            "[dim]This only happens once — future runs start instantly.[/dim]",
+            title="[bold drift.blue]First-time setup[/bold drift.blue]",
+            border_style="drift.blue",
+        )
+    )
+
+    with progress:
+        task = progress.add_task(model, total=None)
+        for chunk in _ollama.pull(model, stream=True):
+            completed = chunk.get("completed")
+            total = chunk.get("total")
+            if total:
+                progress.update(task, total=total, completed=completed or 0)
+
     print_success(f"Model {model} ready.")
 
 
