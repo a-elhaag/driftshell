@@ -68,11 +68,9 @@ def get_hardware_profile() -> HardwareProfile:
 
     if cfg.model_override:
         model = cfg.model_override
-    elif vram_gb >= 16 or ram_gb >= 32:
-        model = MODEL_31B
-    elif vram_gb >= 8 or ram_gb >= 16:
-        model = MODEL_26B
     else:
+        # Default to the smallest model — no surprise 20 GB downloads.
+        # Users upgrade via: drift model 26b / drift model 31b
         model = MODEL_E4B
 
     return HardwareProfile(vram_gb=vram_gb, ram_gb=ram_gb, selected_model=model)

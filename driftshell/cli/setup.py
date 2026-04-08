@@ -22,9 +22,9 @@ from driftshell.utils.console import console, print_success, print_warning, prin
 app = typer.Typer()
 
 AVAILABLE_MODELS = [
-    ("31b", MODEL_31B, "Largest model, best accuracy (16+ GB VRAM)"),
-    ("26b", MODEL_26B, "Balanced model, good accuracy & speed (8+ GB VRAM)"),
-    ("e4b", MODEL_E4B, "Small model, fast & lightweight (4+ GB VRAM)"),
+    ("31b", MODEL_31B, "Largest model, best accuracy (~20 GB download)"),
+    ("26b", MODEL_26B, "Balanced model, good accuracy & speed (~14 GB download)"),
+    ("e4b", MODEL_E4B, "Small model, fast & lightweight (~3 GB download)  ← default"),
 ]
 
 
@@ -65,7 +65,7 @@ def setup(
         table.add_column()
         table.add_row("RAM",   f"{profile.ram_gb:.1f} GB")
         table.add_row("VRAM",  f"{profile.vram_gb:.1f} GB")
-        table.add_row("Model", profile.selected_model)
+        table.add_row("Model", f"{profile.selected_model}  [dim](upgrade: drift model 26b / 31b)[/dim]")
         table.add_row("Plan",  "Free")
         table.add_row("Limits", "50 commands/day")
 
