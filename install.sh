@@ -16,7 +16,8 @@ if ! command -v brew >/dev/null 2>&1; then
     exit 1
 fi
 
-# Tap and install
+# Ensure fresh tap
+brew untap "$TAP" 2>/dev/null || true
 brew tap "$TAP" --quiet
 brew install "$FORMULA" --quiet
 
