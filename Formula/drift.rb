@@ -16,9 +16,10 @@ class Drift < Formula
     venv = libexec / "venv"
     system Formula["python@3.11"].bin / "python3.11", "-m", "venv", venv
 
-    # Install driftshell (non-editable so paths are stable)
+    # Install build backend then the package
     system venv / "bin" / "pip", "install", "--upgrade", "pip"
-    system venv / "bin" / "pip", "install", "--no-build-isolation", "."
+    system venv / "bin" / "pip", "install", "hatchling"
+    system venv / "bin" / "pip", "install", "."
 
     # Wrapper scripts for both entry points
     (bin / "drift").write_env_script(venv / "bin" / "drift", {})
