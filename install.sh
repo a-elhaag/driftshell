@@ -16,10 +16,11 @@ if ! command -v brew >/dev/null 2>&1; then
     exit 1
 fi
 
-# Ensure fresh tap
+# Ensure fresh tap (remove stale local cache)
 brew untap "$TAP" 2>/dev/null || true
-brew tap "$TAP" --quiet
-brew install "$FORMULA" --quiet
+rm -rf "$(brew --prefix)/Library/Taps/a-elhaag/homebrew-driftshell" 2>/dev/null || true
+brew tap "$TAP"
+brew install "$FORMULA"
 
 printf "\n\033[1;32m✓ Drift installed!\033[0m\n\n"
 printf "  Get started:\n"
