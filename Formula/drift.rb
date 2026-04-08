@@ -2,7 +2,7 @@ class Drift < Formula
   desc "Local CLI: plain English → shell commands via Ollama"
   homepage "https://github.com/a-elhaag/driftshell"
   url "https://github.com/a-elhaag/driftshell/archive/refs/tags/v1.0.0.tar.gz"
-  sha256 "0019dfc4b32d63c1392aa264aed2253c1e0c2fb09216f8e2cc269bbfb8bb49b5"
+  sha256 "f07b23a972a1de465d9095ab95f706e1494006dfd6c3c1fe4dc4804bac6aaaa1"
   license "MIT"
 
   depends_on "python@3.11"
